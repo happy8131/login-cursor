@@ -1,9 +1,12 @@
 'use client';
 
 import Navigation from '../components/Navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '@/lib/axios';
+import { useDispatch } from 'react-redux';
+import { setUserFromToken } from '@/store/userSlice';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -11,6 +14,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,24 +30,21 @@ export default function LoginPage() {
         password,
       });
 
-      // 응답 데이터 로깅 (디버깅용)
-      console.log('로그인 응답 상태:', response.status);
-      console.log('로그인 응답 데이터:', response.data);
 
       // 로그인 성공
       if (response.status === 200 || response.status === 201) {
         const accessToken = response.data?.accessToken || response.data?.token;
-        const role = response.data?.role || response.data?.authorities?.[0]?.authority;
-        
-        if (accessToken) {
-          // 토큰과 role을 localStorage에 저장
+     
+        if (accessToken) {    
+          // 토큰을 localStorage에 저장
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', accessToken);
-            if (role) {
-              localStorage.setItem('userRole', role);
-            }
           }
-          alert(`로그인 성공!\naccessToken: ${accessToken}`);
+          
+          // Redux store에 토큰 정보 저장
+          dispatch(setUserFromToken(accessToken));
+          
+          alert('로그인 성공!');
         } else {
           alert('로그인 성공!');
         }
@@ -51,7 +53,6 @@ export default function LoginPage() {
         // 성공 상태 코드가 아닌 경우
         const errorMessage = response.data?.message || response.data?.error || `예상치 못한 응답: ${response.status}`;
         setError(`로그인 실패: ${errorMessage}`);
-        console.error('로그인 실패 - 응답:', response.data);
         alert(`로그인 실패\n상태: ${response.status}\n에러: ${errorMessage}`);
       }
     } catch (err: any) {
@@ -61,17 +62,14 @@ export default function LoginPage() {
         const errorMessage = err.response.data?.message || err.response.data?.error || '로그인에 실패했습니다.';
         const errorData = err.response.data;
         setError(`로그인 실패: ${errorMessage}`);
-        console.error('로그인 실패 - 에러 데이터:', errorData);
         alert(`로그인 실패\n에러: ${JSON.stringify(errorData, null, 2)}`);
       } else if (err.request) {
         // 요청은 보냈지만 응답을 받지 못한 경우
         setError('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-        console.error('서버 응답 없음:', err.request);
         alert('로그인 실패\n서버에 연결할 수 없습니다.');
       } else {
         // 요청 설정 중 오류가 발생한 경우
         setError('로그인 중 오류가 발생했습니다.');
-        console.error('오류:', err.message);
         alert(`로그인 실패\n오류: ${err.message}`);
       }
     } finally {

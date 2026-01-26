@@ -18,30 +18,15 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // 페이지 접근 시 role 확인
-    checkAccess();
-  }, []);
-
-  const checkAccess = () => {
-    if (typeof window !== 'undefined') {
-      const userRole = localStorage.getItem('userRole');
-      
-      // ROLE_ADMIN이 아니면 접근 차단
-      if (userRole !== 'ROLE_ADMIN') {
-        setIsAccessDenied(true);
-        setIsLoading(false);
-        return;
-      }
-    }
-    
-    // 권한이 있으면 유저 목록 가져오기
+    // 페이지 접근 시 바로 유저 목록 가져오기 (서버에서 권한 체크)
     fetchUsers();
-  };
+  }, []);
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       setError(null);
+      setIsAccessDenied(false);
       
       // 인터셉터가 자동으로 토큰 헤더를 추가합니다
       const response = await axiosInstance.get('/api/admin/users');
@@ -52,30 +37,31 @@ export default function AdminPage() {
           ? response.data 
           : response.data?.users || response.data?.data || [];
         setUsers(userData);
+      } else {
+        // 200이 아닌 경우 접근 제한으로 처리
+        setIsAccessDenied(true);
+        setError('유저 정보를 가져올 수 없습니다. 접근 권한이 없습니다.');
       }
     } catch (err: any) {
+      // 모든 에러 상황에서 접근 제한 메시지 표시
+      setIsAccessDenied(true);
+      
       if (err.response) {
         const status = err.response.status;
         const errorMessage = err.response.data?.message || err.response.data?.error || '유저 목록을 불러오는데 실패했습니다.';
         
-        // 403 Forbidden 또는 권한 관련 에러인 경우 접근 제한 메시지
-        if (status === 403 || 
-            errorMessage.toLowerCase().includes('권한') || 
-            errorMessage.toLowerCase().includes('access') ||
-            errorMessage.toLowerCase().includes('admin') ||
-            errorMessage.toLowerCase().includes('forbidden')) {
-          setIsAccessDenied(true);
+        // 401, 403 등 권한 관련 에러
+        if (status === 401 || status === 403) {
           setError('접근 권한이 없습니다. 관리자(admin) 계정만 접근할 수 있습니다.');
+        } else if (status === 500) {
+          setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         } else {
-          setError(errorMessage);
+          setError(`유저 정보를 가져올 수 없습니다. (${errorMessage})`);
         }
-        console.error('유저 목록 불러오기 실패:', err.response.data);
       } else if (err.request) {
         setError('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-        console.error('서버 응답 없음:', err.request);
       } else {
         setError('유저 목록을 불러오는 중 오류가 발생했습니다.');
-        console.error('오류:', err.message);
       }
     } finally {
       setIsLoading(false);

@@ -36,15 +36,12 @@ export default function SignupPage() {
         // 서버에서 응답이 온 경우
         const errorMessage = err.response.data?.message || err.response.data?.error || '회원가입에 실패했습니다.';
         setError(errorMessage);
-        console.error('회원가입 실패:', err.response.data);
       } else if (err.request) {
         // 요청은 보냈지만 응답을 받지 못한 경우
         setError('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-        console.error('서버 응답 없음:', err.request);
       } else {
         // 요청 설정 중 오류가 발생한 경우
         setError('회원가입 중 오류가 발생했습니다.');
-        console.error('오류:', err.message);
       }
     } finally {
       setIsLoading(false);

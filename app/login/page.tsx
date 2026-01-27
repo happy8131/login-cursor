@@ -15,7 +15,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
-  
+
+  const handleKakaoLogin = () => {
+    if (typeof window === 'undefined') return;
+    
+    const KAKAO_REST_API_KEY = '';
+    // Next.js 앱의 실제 origin 사용 (포트 자동 감지)
+    const KAKAO_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect/kakao';
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+    
+    window.location.href = kakaoAuthUrl;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +130,29 @@ export default function LoginPage() {
             {isLoading ? '처리 중...' : '로그인'}
           </button>
         </form>
+        
+        {/* 카카오 로그인 버튼 */}
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleKakaoLogin}
+            className="w-full bg-[#FEE500] text-[#000000] font-bold py-3 rounded-md hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 0C4.477 0 0 3.582 0 8c0 2.797 1.768 5.27 4.4 6.7L3.5 20l5.5-2.9c.5.05 1 .1 1.5.1 5.523 0 10-3.582 10-8S15.523 0 10 0z"
+                fill="#000000"
+              />
+            </svg>
+            카카오 로그인
+          </button>
+        </div>
       </div>
     </div>
   );

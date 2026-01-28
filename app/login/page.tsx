@@ -15,7 +15,26 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
-  
+
+  const handleKakaoLogin = () => {
+    if (typeof window === 'undefined') return;
+    
+    const KAKAO_REST_API_KEY = '';
+    const KAKAO_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect/kakao';
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+    
+    window.location.href = kakaoAuthUrl;
+  };
+
+  const handleGoogleLogin = () => {
+    if (typeof window === 'undefined') return;
+    
+    const GOOGLE_CLIENT_ID = '';
+    const GOOGLE_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect/google';
+    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email%20profile`;
+    
+    window.location.href = GOOGLE_AUTH_URL;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +139,61 @@ export default function LoginPage() {
             {isLoading ? '처리 중...' : '로그인'}
           </button>
         </form>
+        
+        {/* 카카오 로그인 버튼 */}
+        <div className="mt-4 space-y-2">
+          <button
+            type="button"
+            onClick={handleKakaoLogin}
+            className="w-full bg-[#FEE500] text-[#000000] font-bold py-3 rounded-md hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 0C4.477 0 0 3.582 0 8c0 2.797 1.768 5.27 4.4 6.7L3.5 20l5.5-2.9c.5.05 1 .1 1.5.1 5.523 0 10-3.582 10-8S15.523 0 10 0z"
+                fill="#000000"
+              />
+            </svg>
+            카카오 로그인
+          </button>
+
+          {/* 구글 로그인 버튼 */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full bg-white text-gray-800 font-medium py-3 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 533.5 544.3"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h147.3c-6.4 34.6-25.9 63.9-55.1 83.5v69.4h88.9c52.1-48 80.4-118.7 80.4-197.9z"
+                fill="#4285F4"
+              />
+              <path
+                d="M272 544.3c73.5 0 135.3-24.3 180.4-66.1l-88.9-69.4c-24.7 16.6-56.4 26.4-91.5 26.4-70.3 0-129.9-47.4-151.2-111.1H30.8v69.9c44.6 88.4 136.1 150.3 241.2 150.3z"
+                fill="#34A853"
+              />
+              <path
+                d="M120.8 323.9c-10.8-32.4-10.8-67.4 0-99.8v-69.9H30.8c-40.8 81-40.8 177.1 0 258.1l90-88.4z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M272 107.7c39.9-.6 78.2 14.5 107.4 42.6l79.8-79.8C407.1 24.7 345.4 0 272 0 166.9 0 75.4 61.9 30.8 150.3l90 69.9C142.1 155.1 201.7 107.7 272 107.7z"
+                fill="#EA4335"
+              />
+            </svg>
+            구글 로그인
+          </button>
+        </div>
       </div>
     </div>
   );

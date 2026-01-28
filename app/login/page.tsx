@@ -19,9 +19,15 @@ export default function LoginPage() {
   const handleKakaoLogin = () => {
     if (typeof window === 'undefined') return;
     
-    const KAKAO_REST_API_KEY = '';
-    const KAKAO_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect/kakao';
-    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+    const KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+    const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+    
+    if (!KAKAO_REST_API_KEY || !KAKAO_REDIRECT_URI) {
+      alert('카카오 로그인 설정이 올바르지 않습니다.');
+      return;
+    }
+    
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${encodeURIComponent(KAKAO_REDIRECT_URI)}&response_type=code`;
     
     window.location.href = kakaoAuthUrl;
   };
@@ -29,9 +35,15 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     if (typeof window === 'undefined') return;
     
-    const GOOGLE_CLIENT_ID = '';
-    const GOOGLE_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect/google';
-    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email%20profile`;
+    const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const GOOGLE_REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
+    
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_REDIRECT_URI) {
+      alert('구글 로그인 설정이 올바르지 않습니다.');
+      return;
+    }
+    
+    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}&response_type=code&scope=openid%20email%20profile`;
     
     window.location.href = GOOGLE_AUTH_URL;
   };

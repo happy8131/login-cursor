@@ -153,7 +153,7 @@ export default function LoginPage() {
         </form>
         
         {/* 카카오 로그인 버튼 */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-2">
           <button
             type="button"
             onClick={handleKakaoLogin}
